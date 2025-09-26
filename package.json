@@ -1,0 +1,21 @@
+{
+  "name": "kidspos-docs",
+  "version": "1.0.0",
+  "description": "KidsPOS System Documentation for Field Deployment",
+  "scripts": {
+    "slides": "marp slides/deployment-training.md --html --output dist/slides/deployment-training.html",
+    "slides:all": "marp slides/ --html --output dist/slides/",
+    "slides:watch": "marp slides/ --html --output dist/slides/ --watch",
+    "serve": "marp slides/ --server --preview",
+    "build": "npm run slides"
+  },
+  "keywords": [
+    "kidspos",
+    "documentation",
+    "deployment",
+    "pos-system"
+  ],
+  "devDependencies": {
+    "@marp-team/marp-cli": "^3.4.0"
+  }
+}

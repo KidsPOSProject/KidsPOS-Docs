@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- KidsPOS System Architecture Diagram -->
+<!-- Created with draw.io compatible format -->
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; }
+      .component { font-family: Arial, sans-serif; font-size: 12px; }
+      .label { font-family: Arial, sans-serif; font-size: 10px; }
+      .server-box { fill: #e1f5fe; stroke: #01579b; stroke-width: 2; }
+      .android-box { fill: #e8f5e8; stroke: #2e7d32; stroke-width: 2; }
+      .db-box { fill: #fff3e0; stroke: #e65100; stroke-width: 2; }
+      .network-line { stroke: #666; stroke-width: 2; stroke-dasharray: 5,5; }
+      .api-line { stroke: #1976d2; stroke-width: 2; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">KidsPOS システム構成図</text>
+  
+  <!-- KidsPOS-Server -->
+  <rect x="50" y="80" width="200" height="120" class="server-box" rx="10"/>
+  <text x="150" y="105" text-anchor="middle" class="component" font-weight="bold">KidsPOS-Server</text>
+  <text x="150" y="125" text-anchor="middle" class="component">Node.js Application</text>
+  <text x="70" y="145" class="label">• REST API</text>
+  <text x="70" y="160" class="label">• Business Logic</text>
+  <text x="70" y="175" class="label">• Authentication</text>
+  <text x="70" y="190" class="label">Port: 3000</text>
+  
+  <!-- MongoDB -->
+  <rect x="50" y="250" width="200" height="100" class="db-box" rx="10"/>
+  <text x="150" y="275" text-anchor="middle" class="component" font-weight="bold">MongoDB</text>
+  <text x="150" y="295" text-anchor="middle" class="component">Database</text>
+  <text x="70" y="315" class="label">• Transaction Data</text>
+  <text x="70" y="330" class="label">• User Management</text>
+  <text x="70" y="345" class="label">Port: 27017</text>
+  
+  <!-- Android Devices -->
+  <rect x="400" y="80" width="150" height="100" class="android-box" rx="10"/>
+  <text x="475" y="105" text-anchor="middle" class="component" font-weight="bold">Android Device 1</text>
+  <text x="475" y="125" text-anchor="middle" class="component">KidsPOS-for-Android</text>
+  <text x="420" y="145" class="label">• QR Scanner</text>
+  <text x="420" y="160" class="label">• Touch Interface</text>
+  <text x="420" y="175" class="label">Android 7.0+</text>
+  
+  <rect x="600" y="80" width="150" height="100" class="android-box" rx="10"/>
+  <text x="675" y="105" text-anchor="middle" class="component" font-weight="bold">Android Device 2</text>
+  <text x="675" y="125" text-anchor="middle" class="component">KidsPOS-for-Android</text>
+  <text x="620" y="145" class="label">• QR Scanner</text>
+  <text x="620" y="160" class="label">• Touch Interface</text>
+  <text x="620" y="175" class="label">Android 7.0+</text>
+  
+  <!-- Network Infrastructure -->
+  <rect x="300" y="250" width="250" height="100" class="network-line" fill="#f0f0f0" stroke-width="1" rx="10"/>
+  <text x="425" y="275" text-anchor="middle" class="component" font-weight="bold">ネットワークインフラ</text>
+  <text x="320" y="295" class="label">• WiFi アクセスポイント</text>
+  <text x="320" y="310" class="label">• ルーター/スイッチ</text>
+  <text x="320" y="325" class="label">• インターネット接続</text>
+  <text x="320" y="340" class="label">• ファイアウォール</text>
+  
+  <!-- API Connections -->
+  <line x1="250" y1="140" x2="400" y2="130" class="api-line" marker-end="url(#arrowhead)"/>
+  <text x="320" y="130" class="label">HTTP/REST API</text>
+  
+  <line x1="250" y1="140" x2="600" y2="130" class="api-line" marker-end="url(#arrowhead)"/>
+  
+  <!-- Database Connection -->
+  <line x1="150" y1="200" x2="150" y2="250" class="api-line" marker-end="url(#arrowhead)"/>
+  <text x="160" y="225" class="label">MongoDB Protocol</text>
+  
+  <!-- Network Connections -->
+  <line x1="475" y1="180" x2="425" y2="250" class="network-line"/>
+  <line x1="675" y1="180" x2="425" y2="250" class="network-line"/>
+  <line x1="150" y1="200" x2="300" y2="300" class="network-line"/>
+  
+  <!-- External Systems -->
+  <rect x="580" y="400" width="170" height="80" fill="#ffe0e0" stroke="#d32f2f" stroke-width="2" rx="10"/>
+  <text x="665" y="425" text-anchor="middle" class="component" font-weight="bold">外部システム</text>
+  <text x="600" y="445" class="label">• 決済システム</text>
+  <text x="600" y="460" class="label">• 在庫管理システム</text>
+  <text x="600" y="475" class="label">• レポートシステム</text>
+  
+  <!-- External Connection -->
+  <line x1="250" y1="140" x2="580" y2="440" class="network-line"/>
+  <text x="400" y="290" class="label">API Integration</text>
+  
+  <!-- Data Flow Labels -->
+  <text x="50" y="520" class="component" font-weight="bold">データフロー:</text>
+  <text x="50" y="540" class="label">1. Android端末でQRコード読み取り</text>
+  <text x="50" y="555" class="label">2. サーバーにHTTP/REST APIで送信</text>
+  <text x="50" y="570" class="label">3. サーバーがMongoDBにデータ保存</text>
+  <text x="50" y="585" class="label">4. 外部システムとの連携処理</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+    </marker>
+  </defs>
+</svg>
