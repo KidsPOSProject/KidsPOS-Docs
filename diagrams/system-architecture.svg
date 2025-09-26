@@ -30,7 +30,7 @@
   <!-- Database -->
   <rect x="50" y="250" width="200" height="100" class="db-box" rx="10"/>
   <text x="150" y="275" text-anchor="middle" class="component" font-weight="bold">Database</text>
-  <text x="150" y="295" text-anchor="middle" class="component">H2 / MySQL</text>
+  <text x="150" y="295" text-anchor="middle" class="component">SQLite Database</text>
   <text x="70" y="315" class="label">• Transaction Data</text>
   <text x="70" y="330" class="label">• Embedded/Local</text>
   <text x="70" y="345" class="label">File-based</text>
@@ -89,7 +89,7 @@
   <text x="50" y="520" class="component" font-weight="bold">データフロー:</text>
   <text x="50" y="540" class="label">1. Nexus 7タブレットでバーコード/QR読み取り</text>
   <text x="50" y="555" class="label">2. Raspberry PiにHTTP/REST APIで送信</text>
-  <text x="50" y="570" class="label">3. サーバーがH2/MySQLにデータ保存</text>
+  <text x="50" y="570" class="label">3. サーバーがSQLiteにデータ保存</text>
   <text x="50" y="585" class="label">4. レシートプリンターで印刷処理</text>
   
   <!-- Arrow marker definition -->

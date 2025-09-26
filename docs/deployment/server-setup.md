@@ -16,7 +16,7 @@ KidsPOS-Serverを実際の現場環境で展開するための詳細手順です
 ### 必要なソフトウェア
 - Java 11以上 (OpenJDK推奨)
 - Spring Boot アプリケーション
-- データベース (組み込みH2またはMySQL)
+- SQLite データベース (組み込み)
 - Git
 
 ## インストール手順
@@ -70,15 +70,11 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 server.port=8080
 server.address=0.0.0.0
 
-# データベース設定（H2組み込みデータベースの場合）
-spring.datasource.url=jdbc:h2:file:./data/kidspos
-spring.datasource.driver-class-name=org.h2.Driver
+# データベース設定（SQLite組み込みデータベース）
+spring.datasource.url=jdbc:sqlite:./kidspos.db
+spring.datasource.driver-class-name=org.sqlite.JDBC
 spring.jpa.hibernate.ddl-auto=update
-
-# または MySQL使用の場合
-# spring.datasource.url=jdbc:mysql://localhost:3306/kidspos
-# spring.datasource.username=kidspos
-# spring.datasource.password=your_password
+spring.jpa.database-platform=org.hibernate.dialect.SQLiteDialect
 
 # ログ設定
 logging.level.root=INFO
@@ -141,18 +137,12 @@ sudo systemctl start cups
 
 ### データベース初期化
 ```bash
-# H2データベースの場合は自動で作成される
-# MySQLを使用する場合
-sudo apt install -y mysql-server
-sudo mysql_secure_installation
+# SQLiteデータベースファイルは自動で作成される
+# データベースファイルの権限確認
+ls -la /opt/KidsPOS-Server/kidspos.db
 
-# データベースとユーザーの作成
-sudo mysql -u root -p << 'EOF'
-CREATE DATABASE kidspos;
-CREATE USER 'kidspos'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON kidspos.* TO 'kidspos'@'localhost';
-FLUSH PRIVILEGES;
-EOF
+# 必要に応じて権限設定
+sudo chown pi:pi /opt/KidsPOS-Server/kidspos.db
 ```
 
 ## 起動と動作確認
@@ -243,9 +233,9 @@ vcgencmd get_throttled # スロットリング状態
 
 3. **データベース接続エラー**
    ```bash
-   # H2データベースファイルの権限確認
-   ls -la /opt/KidsPOS-Server/data/
-   sudo chown -R pi:pi /opt/KidsPOS-Server/data/
+   # SQLiteデータベースファイルの権限確認
+   ls -la /opt/KidsPOS-Server/kidspos.db
+   sudo chown -R pi:pi /opt/KidsPOS-Server/
    ```
 
 4. **無線LAN接続不安定**
@@ -286,11 +276,8 @@ sudo systemctl restart networking
 
 ### バックアップ
 ```bash
-# データベースバックアップ（H2の場合）
-cp -R /opt/KidsPOS-Server/data/ /backup/$(date +%Y%m%d)/
-
-# MySQLの場合
-mysqldump -u kidspos -p kidspos > /backup/kidspos-$(date +%Y%m%d).sql
+# データベースバックアップ（SQLiteの場合）
+cp /opt/KidsPOS-Server/kidspos.db /backup/kidspos-$(date +%Y%m%d).db
 
 # アプリケーションコードバックアップ
 tar -czf /backup/kidspos-server-$(date +%Y%m%d).tar.gz /opt/KidsPOS-Server

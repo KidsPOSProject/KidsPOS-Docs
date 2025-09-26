@@ -12,7 +12,7 @@ KidsPOSシステムの現場展開・運用のための包括的ドキュメン�
 
 ### 主要コンポーネント
 - **KidsPOS-Server**
-  - SpringBoot + H2/MySQL
+  - SpringBoot + SQLite
   - Raspberry Pi 4で動作
   - ポート8080で稼働
 - **KidsPOS-for-Android**

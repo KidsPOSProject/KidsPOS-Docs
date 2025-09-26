@@ -27,7 +27,7 @@ footer: 'KidsPOS Project'
 
 ### 主要コンポーネント
 - **KidsPOS-Server**
-  - SpringBoot + H2/MySQL
+  - SpringBoot + SQLite
   - ポート8080で稼働
 - **KidsPOS-for-Android**
   - Android 7.0以上対応
@@ -79,7 +79,7 @@ CPU: 2コア以上
 ### 📦 必要ソフトウェア
 - Java 11以上
 - SpringBoot アプリケーション
-- H2/MySQL データベース
+- SQLite データベース
 - Git
 
 ---
