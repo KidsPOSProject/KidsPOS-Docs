@@ -6,248 +6,291 @@ KidsPOS-Serverを実際の現場環境で展開するための詳細手順です
 ## 事前準備
 
 ### システム要件
-- **OS**: Ubuntu 20.04 LTS またはCentOS 8以上推奨
-- **CPU**: 2コア以上
+- **ハードウェア**: Raspberry Pi 4 (4GB RAM推奨)
+- **OS**: Raspberry Pi OS (64-bit推奨) または Ubuntu 20.04 LTS for ARM
+- **CPU**: ARM Cortex-A72 (Raspberry Pi 4)
 - **メモリ**: 4GB以上推奨
-- **ストレージ**: 50GB以上の空き容量
-- **ネットワーク**: インターネット接続必須
+- **ストレージ**: 32GB以上のmicroSDカード (Class 10以上)
+- **ネットワーク**: 無線LAN（イントラネット構成・インターネット接続不要）
 
 ### 必要なソフトウェア
-- Node.js 14.x以上
-- MongoDB 4.4以上
+- Java 11以上 (OpenJDK推奨)
+- Spring Boot アプリケーション
+- データベース (組み込みH2またはMySQL)
 - Git
-- PM2 (プロセス管理)
 
 ## インストール手順
 
-### 1. システムの更新
+### 1. Raspberry Pi のセットアップ
 ```bash
-# Ubuntu/Debian
+# システムの更新
 sudo apt update && sudo apt upgrade -y
 
-# CentOS/RHEL
-sudo yum update -y
-# または
-sudo dnf update -y
+# 必要なパッケージのインストール
+sudo apt install -y git vim curl wget
 ```
 
-### 2. Node.js のインストール
+### 2. Java のインストール
 ```bash
-# NodeSourceからインストール（推奨）
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-sudo apt-get install -y nodejs
+# OpenJDK 11のインストール
+sudo apt install -y openjdk-11-jdk
 
 # バージョン確認
-node --version
-npm --version
+java -version
+javac -version
+
+# JAVA_HOME環境変数の設定
+echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-arm64' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-### 3. MongoDB のインストール
-```bash
-# MongoDB公式リポジトリを追加
-wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-
-# インストール
-sudo apt-get update
-sudo apt-get install -y mongodb-org
-
-# 自動起動設定
-sudo systemctl enable mongod
-sudo systemctl start mongod
-```
-
-### 4. KidsPOS-Server のクローン
+### 3. KidsPOS-Server のクローンとビルド
 ```bash
 cd /opt
 sudo git clone https://github.com/KidsPOSProject/KidsPOS-Server.git
 sudo chown -R $USER:$USER KidsPOS-Server
 cd KidsPOS-Server
+
+# Gradleでビルド（Gradleが含まれている場合）
+./gradlew build
+
+# または、Mavenでビルド（pom.xmlがある場合）
+mvn clean package
 ```
 
-### 5. 依存関係のインストール
+### 4. 設定ファイルの設定
 ```bash
-npm install
+# application.propertiesまたはapplication.ymlを編集
+cp src/main/resources/application.properties.example src/main/resources/application.properties
 ```
 
-### 6. 環境設定ファイルの作成
-```bash
-cp .env.example .env
-```
-
-`.env` ファイルを編集：
-```env
-# データベース設定
-MONGODB_URI=mongodb://localhost:27017/kidspos
-DB_NAME=kidspos
-
+`application.properties` ファイルを編集：
+```properties
 # サーバー設定
-PORT=3000
-NODE_ENV=production
+server.port=8080
+server.address=0.0.0.0
 
-# セキュリティ
-JWT_SECRET=your-super-secret-jwt-key-change-this
-SESSION_SECRET=your-super-secret-session-key-change-this
+# データベース設定（H2組み込みデータベースの場合）
+spring.datasource.url=jdbc:h2:file:./data/kidspos
+spring.datasource.driver-class-name=org.h2.Driver
+spring.jpa.hibernate.ddl-auto=update
 
-# その他の設定
-LOG_LEVEL=info
+# または MySQL使用の場合
+# spring.datasource.url=jdbc:mysql://localhost:3306/kidspos
+# spring.datasource.username=kidspos
+# spring.datasource.password=your_password
+
+# ログ設定
+logging.level.root=INFO
+logging.file.name=logs/kidspos.log
 ```
 
-### 7. PM2 の設定
+### 5. サービス化設定
 ```bash
-# PM2をグローバルインストール
-sudo npm install -g pm2
+# systemdサービスファイルを作成
+sudo tee /etc/systemd/system/kidspos-server.service << 'EOF'
+[Unit]
+Description=KidsPOS Server
+After=network.target
 
-# ecosystem.config.js を作成
-cat > ecosystem.config.js << 'EOF'
-module.exports = {
-  apps: [{
-    name: 'kidspos-server',
-    script: 'app.js',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    env: {
-      NODE_ENV: 'production'
-    }
-  }]
-}
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/KidsPOS-Server
+ExecStart=/usr/bin/java -jar target/kidspos-server-*.jar
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
 EOF
+
+# サービス有効化
+sudo systemctl daemon-reload
+sudo systemctl enable kidspos-server
 ```
 
 ## 現場展開時の確認事項
 
 ### ネットワーク設定
 ```bash
-# ファイアウォール設定（Ubuntu）
-sudo ufw allow 3000/tcp
+# 無線LAN設定確認
+iwconfig wlan0
+ip addr show wlan0
+
+# ファイアウォール設定（UFWを使用）
+sudo ufw allow 8080/tcp
 sudo ufw allow ssh
 sudo ufw --force enable
 
 # ポート確認
-sudo netstat -tlnp | grep :3000
+sudo netstat -tlnp | grep :8080
 ```
 
-### セキュリティ設定
+### 周辺機器設定
 ```bash
-# SSL証明書の設置（Let's Encrypt使用例）
-sudo apt install certbot
-sudo certbot certonly --standalone -d your-domain.com
+# レシートプリンター設定（有線LAN接続）
+# プリンターのIPアドレスを確認
+nmap -sn 192.168.1.0/24
 
-# Nginxリバースプロキシ設定（オプション）
-sudo apt install nginx
+# CUPS設定（必要に応じて）
+sudo apt install -y cups
+sudo systemctl enable cups
+sudo systemctl start cups
 ```
 
 ### データベース初期化
 ```bash
-# MongoDB接続確認
-mongo --eval "db.adminCommand('ismaster')"
+# H2データベースの場合は自動で作成される
+# MySQLを使用する場合
+sudo apt install -y mysql-server
+sudo mysql_secure_installation
 
-# 初期データの投入（必要に応じて）
-npm run db:seed
+# データベースとユーザーの作成
+sudo mysql -u root -p << 'EOF'
+CREATE DATABASE kidspos;
+CREATE USER 'kidspos'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON kidspos.* TO 'kidspos'@'localhost';
+FLUSH PRIVILEGES;
+EOF
 ```
 
 ## 起動と動作確認
 
 ### 1. サーバー起動
 ```bash
-# PM2で起動
-pm2 start ecosystem.config.js
+# systemdサービスで起動
+sudo systemctl start kidspos-server
 
 # 自動起動設定
-pm2 startup
-pm2 save
+sudo systemctl enable kidspos-server
+
+# 状態確認
+sudo systemctl status kidspos-server
 ```
 
 ### 2. 動作確認
 ```bash
 # プロセス確認
-pm2 status
+ps aux | grep java
 
 # ログ確認
-pm2 logs kidspos-server
+sudo journalctl -u kidspos-server -f
 
 # ヘルスチェック
-curl http://localhost:3000/health
+curl http://localhost:8080/actuator/health
 ```
 
 ### 3. API動作テスト
 ```bash
 # 基本APIテスト
-curl -X GET http://localhost:3000/api/status
-curl -X GET http://localhost:3000/api/version
+curl -X GET http://localhost:8080/api/status
+curl -X GET http://localhost:8080/api/version
 ```
 
 ## 運用監視
 
 ### ログ管理
 ```bash
-# PM2ログローテーション
-pm2 install pm2-logrotate
-pm2 set pm2-logrotate:max_size 10M
-pm2 set pm2-logrotate:retain 30
+# systemdログの確認
+sudo journalctl -u kidspos-server --since "1 hour ago"
+
+# アプリケーションログの確認
+tail -f /opt/KidsPOS-Server/logs/kidspos.log
+
+# ログローテーション設定
+sudo tee /etc/logrotate.d/kidspos << 'EOF'
+/opt/KidsPOS-Server/logs/*.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
+EOF
 ```
 
 ### システム監視
 ```bash
 # リソース使用量確認
-pm2 monit
-
-# システム負荷確認
 htop
 df -h
 free -h
+
+# Raspberry Pi固有の監視
+vcgencmd measure_temp  # CPU温度
+vcgencmd get_throttled # スロットリング状態
 ```
 
 ## トラブルシューティング
 
 ### よくある問題
 
-1. **ポート3000が使用中**
+1. **ポート8080が使用中**
    ```bash
-   sudo lsof -i :3000
+   sudo lsof -i :8080
    # プロセスを確認して必要に応じて停止
    ```
 
-2. **MongoDB接続エラー**
+2. **Java OutOfMemoryError**
    ```bash
-   sudo systemctl status mongod
-   sudo systemctl restart mongod
+   # JVMメモリ設定を調整
+   # /etc/systemd/system/kidspos-server.service の ExecStart に追加:
+   # -Xmx1g -Xms512m
    ```
 
-3. **メモリ不足**
+3. **データベース接続エラー**
    ```bash
-   # スワップファイル作成
-   sudo fallocate -l 2G /swapfile
-   sudo chmod 600 /swapfile
-   sudo mkswap /swapfile
-   sudo swapon /swapfile
+   # H2データベースファイルの権限確認
+   ls -la /opt/KidsPOS-Server/data/
+   sudo chown -R pi:pi /opt/KidsPOS-Server/data/
+   ```
+
+4. **無線LAN接続不安定**
+   ```bash
+   # WiFi省電力モード無効化
+   sudo tee /etc/systemd/system/wifi-powersave-off.service << 'EOF'
+[Unit]
+Description=Turn off WiFi power saving
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/iw dev wlan0 set power_save off
+
+[Install]
+WantedBy=multi-user.target
+EOF
+   sudo systemctl enable wifi-powersave-off
    ```
 
 ### ログ確認コマンド
 ```bash
 # アプリケーションログ
-pm2 logs kidspos-server --lines 100
+tail -f /opt/KidsPOS-Server/logs/kidspos.log
 
 # システムログ
-sudo journalctl -u mongod -f
-tail -f /var/log/nginx/error.log
+sudo journalctl -u kidspos-server -f
+sudo dmesg | tail
 ```
 
 ## 緊急時対応
 
 ### サービス再起動
 ```bash
-pm2 restart kidspos-server
-sudo systemctl restart mongod
-sudo systemctl restart nginx
+sudo systemctl restart kidspos-server
+sudo systemctl restart networking
 ```
 
 ### バックアップ
 ```bash
-# データベースバックアップ
-mongodump --db kidspos --out /backup/$(date +%Y%m%d)
+# データベースバックアップ（H2の場合）
+cp -R /opt/KidsPOS-Server/data/ /backup/$(date +%Y%m%d)/
+
+# MySQLの場合
+mysqldump -u kidspos -p kidspos > /backup/kidspos-$(date +%Y%m%d).sql
 
 # アプリケーションコードバックアップ
 tar -czf /backup/kidspos-server-$(date +%Y%m%d).tar.gz /opt/KidsPOS-Server
@@ -257,10 +300,12 @@ tar -czf /backup/kidspos-server-$(date +%Y%m%d).tar.gz /opt/KidsPOS-Server
 
 現場展開時の確認事項：
 
-- [ ] システム要件確認
-- [ ] ソフトウェアインストール完了
-- [ ] 環境設定ファイル設定
-- [ ] データベース接続確認
+- [ ] Raspberry Pi 4の動作確認
+- [ ] Java 11インストール完了
+- [ ] KidsPOS-Serverビルド成功
+- [ ] 設定ファイル設定完了
+- [ ] 無線LAN接続確認
+- [ ] レシートプリンター接続確認
 - [ ] ファイアウォール設定
 - [ ] サーバー起動確認
 - [ ] API動作確認
@@ -271,4 +316,4 @@ tar -czf /backup/kidspos-server-$(date +%Y%m%d).tar.gz /opt/KidsPOS-Server
 
 ---
 
-**注意**: 本手順は一般的な環境を想定しています。実際の現場環境に応じて適宜調整してください。
+**注意**: 本手順はRaspberry Pi + SpringBootを前提としています。実際の現場環境に応じて適宜調整してください。

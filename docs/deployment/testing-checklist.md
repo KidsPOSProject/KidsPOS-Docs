@@ -24,14 +24,14 @@ KidsPOSシステムの現場展開後に実施する包括的な動作確認手�
 pm2 status
 
 # ヘルスチェック
-curl http://localhost:3000/health
+curl http://localhost:8080/health
 
 # ポート確認
-sudo netstat -tlnp | grep :3000
+sudo netstat -tlnp | grep :8080
 ```
 - [ ] PM2でサーバーが「online」状態
 - [ ] ヘルスチェックが正常応答（200 OK）
-- [ ] ポート3000が正常にリッスン中
+- [ ] ポート8080が正常にリッスン中
 
 ### 2. データベース接続確認
 ```bash
@@ -48,11 +48,11 @@ mongo kidspos --eval "db.stats()"
 ### 3. API動作確認
 ```bash
 # 基本API確認
-curl -X GET http://localhost:3000/api/status
-curl -X GET http://localhost:3000/api/version
+curl -X GET http://localhost:8080/api/status
+curl -X GET http://localhost:8080/api/version
 
 # 認証API確認
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"test"}'
 ```
@@ -98,13 +98,13 @@ adb shell dumpsys package com.kidspos.android | grep INTERNET
 adb shell ping -c 3 [サーバーIP]
 
 # ポート接続確認
-adb shell nc -zv [サーバーIP] 3000
+adb shell nc -zv [サーバーIP] 8080
 
 # アプリからの接続確認
 adb logcat | grep KidsPOS
 ```
 - [ ] サーバーへのping応答正常
-- [ ] ポート3000への接続成功
+- [ ] ポート8080への接続成功
 - [ ] アプリからサーバーへの接続成功
 
 ## 🔍 機能テスト
@@ -174,7 +174,7 @@ top -p $(pgrep -f kidspos-server)
 ps aux | grep kidspos-server
 
 # レスポンス時間測定
-ab -n 100 -c 10 http://localhost:3000/api/status
+ab -n 100 -c 10 http://localhost:8080/api/status
 ```
 - [ ] CPU使用率 < 80%
 - [ ] メモリ使用量 < 1GB

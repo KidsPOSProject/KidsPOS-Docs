@@ -54,7 +54,7 @@
 「KidsPOSシステムのネットワーク構成図をSVG形式で作成してください。
 
 含めるコンポーネント：
-- KidsPOS-Server：Node.js + MongoDB
+- KidsPOS-Server：SpringBoot + H2/MySQL
 - Android端末：複数台のPOSデバイス
 - ネットワーク機器：WiFiルーター、スイッチ
 

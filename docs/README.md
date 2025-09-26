@@ -8,7 +8,7 @@ KidsPOSシステムを実際の現場で安全かつ効率的に展開するた�
 
 #### 1. [サーバー環境構築](deployment/server-setup.md)
 - システム要件と事前準備
-- Node.js + MongoDB環境の構築
+- Java + SpringBoot環境の構築
 - セキュリティ設定とファイアウォール
 - PM2によるプロセス管理
 - 運用監視とログ管理

@@ -21,42 +21,43 @@
   <!-- KidsPOS-Server -->
   <rect x="50" y="80" width="200" height="120" class="server-box" rx="10"/>
   <text x="150" y="105" text-anchor="middle" class="component" font-weight="bold">KidsPOS-Server</text>
-  <text x="150" y="125" text-anchor="middle" class="component">Node.js Application</text>
+  <text x="150" y="125" text-anchor="middle" class="component">SpringBoot Application</text>
   <text x="70" y="145" class="label">• REST API</text>
-  <text x="70" y="160" class="label">• Business Logic</text>
-  <text x="70" y="175" class="label">• Authentication</text>
-  <text x="70" y="190" class="label">Port: 3000</text>
+  <text x="70" y="160" class="label">• Java + SpringBoot</text>
+  <text x="70" y="175" class="label">• Raspberry Pi 4</text>
+  <text x="70" y="190" class="label">Port: 8080</text>
   
-  <!-- MongoDB -->
+  <!-- Database -->
   <rect x="50" y="250" width="200" height="100" class="db-box" rx="10"/>
-  <text x="150" y="275" text-anchor="middle" class="component" font-weight="bold">MongoDB</text>
-  <text x="150" y="295" text-anchor="middle" class="component">Database</text>
+  <text x="150" y="275" text-anchor="middle" class="component" font-weight="bold">Database</text>
+  <text x="150" y="295" text-anchor="middle" class="component">H2 / MySQL</text>
   <text x="70" y="315" class="label">• Transaction Data</text>
-  <text x="70" y="330" class="label">• User Management</text>
-  <text x="70" y="345" class="label">Port: 27017</text>
+  <text x="70" y="330" class="label">• Embedded/Local</text>
+  <text x="70" y="345" class="label">File-based</text>
   
   <!-- Android Devices -->
   <rect x="400" y="80" width="150" height="100" class="android-box" rx="10"/>
-  <text x="475" y="105" text-anchor="middle" class="component" font-weight="bold">Android Device 1</text>
+  <text x="475" y="105" text-anchor="middle" class="component" font-weight="bold">Nexus 7 Tablet 1</text>
   <text x="475" y="125" text-anchor="middle" class="component">KidsPOS-for-Android</text>
-  <text x="420" y="145" class="label">• QR Scanner</text>
-  <text x="420" y="160" class="label">• Touch Interface</text>
+  <text x="420" y="145" class="label">• QR/Barcode Scanner</text>
+  <text x="420" y="160" class="label">• USB Barcode Reader</text>
   <text x="420" y="175" class="label">Android 7.0+</text>
   
   <rect x="600" y="80" width="150" height="100" class="android-box" rx="10"/>
-  <text x="675" y="105" text-anchor="middle" class="component" font-weight="bold">Android Device 2</text>
+  <text x="675" y="105" text-anchor="middle" class="component" font-weight="bold">Nexus 7 Tablet 2</text>
   <text x="675" y="125" text-anchor="middle" class="component">KidsPOS-for-Android</text>
-  <text x="620" y="145" class="label">• QR Scanner</text>
-  <text x="620" y="160" class="label">• Touch Interface</text>
+  <text x="620" y="145" class="label">• QR/Barcode Scanner</text>
+  <text x="620" y="160" class="label">• USB Barcode Reader</text>
+  <text x="620" y="175" class="label">Android 7.0+</text>
   <text x="620" y="175" class="label">Android 7.0+</text>
   
   <!-- Network Infrastructure -->
   <rect x="300" y="250" width="250" height="100" class="network-line" fill="#f0f0f0" stroke-width="1" rx="10"/>
-  <text x="425" y="275" text-anchor="middle" class="component" font-weight="bold">ネットワークインフラ</text>
-  <text x="320" y="295" class="label">• WiFi アクセスポイント</text>
-  <text x="320" y="310" class="label">• ルーター/スイッチ</text>
-  <text x="320" y="325" class="label">• インターネット接続</text>
-  <text x="320" y="340" class="label">• ファイアウォール</text>
+  <text x="425" y="275" text-anchor="middle" class="component" font-weight="bold">イントラネット構成</text>
+  <text x="320" y="295" class="label">• 無線LANルーター x 1</text>
+  <text x="320" y="310" class="label">• WiFi アクセスポイント</text>
+  <text x="320" y="325" class="label">• インターネット接続なし</text>
+  <text x="320" y="340" class="label">• ローカル通信のみ</text>
   
   <!-- API Connections -->
   <line x1="250" y1="140" x2="400" y2="130" class="api-line" marker-end="url(#arrowhead)"/>
@@ -66,30 +67,30 @@
   
   <!-- Database Connection -->
   <line x1="150" y1="200" x2="150" y2="250" class="api-line" marker-end="url(#arrowhead)"/>
-  <text x="160" y="225" class="label">MongoDB Protocol</text>
+  <text x="160" y="225" class="label">Database Access</text>
   
   <!-- Network Connections -->
   <line x1="475" y1="180" x2="425" y2="250" class="network-line"/>
   <line x1="675" y1="180" x2="425" y2="250" class="network-line"/>
   <line x1="150" y1="200" x2="300" y2="300" class="network-line"/>
   
-  <!-- External Systems -->
+  <!-- Receipt Printers -->
   <rect x="580" y="400" width="170" height="80" fill="#ffe0e0" stroke="#d32f2f" stroke-width="2" rx="10"/>
-  <text x="665" y="425" text-anchor="middle" class="component" font-weight="bold">外部システム</text>
-  <text x="600" y="445" class="label">• 決済システム</text>
-  <text x="600" y="460" class="label">• 在庫管理システム</text>
-  <text x="600" y="475" class="label">• レポートシステム</text>
+  <text x="665" y="425" text-anchor="middle" class="component" font-weight="bold">レシートプリンター</text>
+  <text x="600" y="445" class="label">• 有線LAN接続</text>
+  <text x="600" y="460" class="label">• IPP/AppSocket</text>
+  <text x="600" y="475" class="label">• ポート 631/9100</text>
   
-  <!-- External Connection -->
+  <!-- Printer Connection -->
   <line x1="250" y1="140" x2="580" y2="440" class="network-line"/>
-  <text x="400" y="290" class="label">API Integration</text>
+  <text x="400" y="290" class="label">Printer Connection</text>
   
   <!-- Data Flow Labels -->
   <text x="50" y="520" class="component" font-weight="bold">データフロー:</text>
-  <text x="50" y="540" class="label">1. Android端末でQRコード読み取り</text>
-  <text x="50" y="555" class="label">2. サーバーにHTTP/REST APIで送信</text>
-  <text x="50" y="570" class="label">3. サーバーがMongoDBにデータ保存</text>
-  <text x="50" y="585" class="label">4. 外部システムとの連携処理</text>
+  <text x="50" y="540" class="label">1. Nexus 7タブレットでバーコード/QR読み取り</text>
+  <text x="50" y="555" class="label">2. Raspberry PiにHTTP/REST APIで送信</text>
+  <text x="50" y="570" class="label">3. サーバーがH2/MySQLにデータ保存</text>
+  <text x="50" y="585" class="label">4. レシートプリンターで印刷処理</text>
   
   <!-- Arrow marker definition -->
   <defs>

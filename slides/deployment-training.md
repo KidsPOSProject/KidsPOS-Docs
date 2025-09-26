@@ -27,8 +27,8 @@ footer: 'KidsPOS Project'
 
 ### 主要コンポーネント
 - **KidsPOS-Server**
-  - Node.js + MongoDB
-  - ポート3000で稼働
+  - SpringBoot + H2/MySQL
+  - ポート8080で稼働
 - **KidsPOS-for-Android**
   - Android 7.0以上対応
   - WiFi接続必須
@@ -77,9 +77,9 @@ CPU: 2コア以上
 ```
 
 ### 📦 必要ソフトウェア
-- Node.js 14.x以上
-- MongoDB 4.4以上
-- PM2 (プロセス管理)
+- Java 11以上
+- SpringBoot アプリケーション
+- H2/MySQL データベース
 - Git
 
 ---
@@ -89,17 +89,15 @@ CPU: 2コア以上
 ### 🔒 セキュリティ設定
 ```bash
 # ファイアウォール設定
-sudo ufw allow 3000/tcp
+sudo ufw allow 8080/tcp
 sudo ufw allow ssh
 sudo ufw --force enable
 ```
 
 ### 🔧 環境設定
-```env
-MONGODB_URI=mongodb://localhost:27017/kidspos
-PORT=3000
-NODE_ENV=production
-JWT_SECRET=your-super-secret-key
+```properties
+server.port=8080
+spring.profiles.active=production
 ```
 
 ---
@@ -172,7 +170,7 @@ adb shell df -h
 **対策**:
 ```bash
 adb shell ping [サーバーIP]
-adb shell nc -zv [サーバーIP] 3000
+adb shell nc -zv [サーバーIP] 8080
 ```
 
 ---

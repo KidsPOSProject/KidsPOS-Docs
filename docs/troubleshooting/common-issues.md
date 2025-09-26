@@ -24,7 +24,7 @@ Android関連対応へ
 ### 1. サーバーが起動しない
 
 #### 症状
-- `http://[サーバーIP]:3000` にアクセスできない
+- `http://[サーバーIP]:8080` にアクセスできない
 - PM2で「stopped」状態
 
 #### 診断コマンド
@@ -34,7 +34,7 @@ pm2 status
 
 # システム状態確認
 sudo systemctl status mongod
-sudo netstat -tlnp | grep :3000
+sudo netstat -tlnp | grep :8080
 
 # ログ確認
 pm2 logs kidspos-server
@@ -55,7 +55,7 @@ sudo journalctl -u mongod -f
 
 3. **ポート競合確認**
    ```bash
-   sudo lsof -i :3000
+   sudo lsof -i :8080
    # 競合プロセスがあれば停止
    sudo kill -9 [PID]
    ```
@@ -214,7 +214,7 @@ adb shell ping 8.8.8.8
 adb shell ping [サーバーIP]
 
 # ポート接続確認
-adb shell nc -zv [サーバーIP] 3000
+adb shell nc -zv [サーバーIP] 8080
 
 # DNS確認
 adb shell nslookup [サーバードメイン]
@@ -335,7 +335,7 @@ adb logcat -b system
 # health_check.sh
 
 # サーバー死活監視
-curl -f http://localhost:3000/health || echo "Server down!"
+curl -f http://localhost:8080/health || echo "Server down!"
 
 # メモリ使用量監視
 MEMORY_USAGE=$(free | grep Mem | awk '{print ($3/$2) * 100.0}')

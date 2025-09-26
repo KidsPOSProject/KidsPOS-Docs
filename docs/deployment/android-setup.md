@@ -6,16 +6,22 @@ KidsPOS-for-Androidアプリを実際の現場で展開・運用するための�
 ## 事前準備
 
 ### デバイス要件
+- **推奨デバイス**: Nexus 7 相当のAndroidタブレット
 - **OS**: Android 7.0 (API level 24) 以上
-- **RAM**: 3GB以上推奨
+- **RAM**: 2GB以上（Nexus 7の場合）
 - **ストレージ**: 1GB以上の空き容量
 - **カメラ**: リアカメラ必須（QRコード読み取り用）
-- **ネットワーク**: WiFi接続必須
+- **USB**: USBバーコードリーダー接続用
+- **ネットワーク**: WiFi接続必須（イントラネット環境）
 
-### 推奨デバイス
-- **タブレット**: 8インチ以上（操作性向上のため）
-- **スマートフォン**: 5.5インチ以上
-- **RAM**: 4GB以上（快適な動作のため）
+### 推奨デバイス仕様
+- **Nexus 7 (2013)**: 7インチタブレット、2GB RAM
+- **または同等スペックのタブレット**: 7-10インチ画面推奨
+- **USB Host機能**: バーコードリーダー接続のため必須
+
+### 周辺機器
+- **USBバーコードリーダー**: USB HID対応の汎用バーコードスキャナー
+- **USB OTGケーブル**: タブレットとバーコードリーダーの接続用
 
 ## APKファイルの準備
 
@@ -88,15 +94,32 @@ python3 -m http.server 8080
 
 ### 2. サーバー接続設定
 1. アプリ起動後、設定画面を開く
-2. **サーバーURL**を入力: `http://[サーバーIP]:3000`
+2. **サーバーURL**を入力: `http://[RaspberryPi IP]:8080`
 3. **接続テスト**を実行して通信確認
 
-### 3. 端末識別設定
+### 3. USBバーコードリーダー設定
+1. **USB OTGケーブルの接続**
+   - タブレットのmicroUSBポートにOTGケーブル接続
+   - バーコードリーダーをOTGケーブルに接続
+
+2. **デバイス認識確認**
+   ```bash
+   # adb経由で確認（開発時）
+   adb shell lsusb
+   # または
+   adb shell cat /proc/bus/input/devices
+   ```
+
+3. **アプリでの設定**
+   - 設定画面で「USBバーコードリーダー」を有効化
+   - テストスキャンで動作確認
+
+### 4. 端末識別設定
 ```json
 {
-  "device_id": "pos-01",
-  "location": "entrance",
-  "department": "sales"
+  "device_id": "tablet-01", 
+  "location": "store-front",
+  "barcode_reader": "usb_hid"
 }
 ```
 
@@ -184,7 +207,7 @@ adb shell pm list packages | grep kidspos
 adb shell ping [サーバーIP]
 
 # ポート確認
-adb shell nc -zv [サーバーIP] 3000
+adb shell nc -zv [サーバーIP] 8080
 
 # DNS設定確認
 adb shell nslookup [サーバードメイン]

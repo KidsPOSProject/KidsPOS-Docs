@@ -6,65 +6,51 @@ KidsPOSシステムを安定して運用するためのネットワーク設定�
 ## ネットワーク要件
 
 ### 基本要件
-- **帯域幅**: 最低10Mbps（推奨50Mbps以上）
-- **遅延**: 100ms以下（推奨50ms以下）
+- **構成**: イントラネット専用（インターネット接続なし）
+- **帯域幅**: 最低10Mbps（推奨20Mbps以上）
+- **遅延**: 50ms以下（推奨20ms以下）
 - **可用性**: 99%以上
-- **同時接続**: 最大50台のAndroid端末
+- **同時接続**: 最大20台のAndroidタブレット（Nexus 7相当）
 
 ### ポート要件
 | サービス | ポート | プロトコル | 用途 |
 |---------|--------|-----------|------|
-| KidsPOS-Server | 3000 | TCP | HTTP API |
-| MongoDB | 27017 | TCP | データベース |
-| SSH | 22 | TCP | リモート管理 |
-| HTTPS | 443 | TCP | セキュア通信（オプション） |
+| KidsPOS-Server | 8080 | TCP | HTTP API (SpringBoot) |
+| SSH | 22 | TCP | Raspberry Pi リモート管理 |
+| レシートプリンター | 631/9100 | TCP | IPP/AppSocket印刷 |
 
 ## ネットワーク構成例
 
-### 小規模構成（1-10台）
+### 小規模構成（1-5台）
 ```
-インターネット
-    ↓
-[ルーター/ファイアウォール]
-    ↓
-[L2スイッチ] ── [KidsPOS-Server]
-    ↓
+[無線LANルーター] ── [Raspberry Pi (KidsPOS-Server)]
+    ↓               ── [レシートプリンター (有線LAN)]
 [WiFiアクセスポイント]
     ↓
-[Android端末群]
+[Nexus 7 タブレット群]
 ```
 
-### 中規模構成（11-30台）
+### 中規模構成（6-15台）
 ```
-インターネット
+[無線LANルーター/スイッチ] ── [Raspberry Pi (KidsPOS-Server)]
+    ↓                      ── [レシートプリンター × 複数 (有線LAN)]
+    ↓                      ── [管理用PC]
+[WiFiアクセスポイント × 2]
     ↓
-[ルーター/ファイアウォール]
-    ↓
-[L3スイッチ] ── [KidsPOS-Server]
-    ↓        ── [管理用PC]
-[WiFiコントローラー]
-    ↓
-[複数のアクセスポイント]
-    ↓
-[Android端末群]
+[Nexus 7 タブレット群（エリア分割）]
 ```
 
-### 大規模構成（31-50台）
+### 大規模構成（16-20台）
 ```
-インターネット
-    ↓
-[ロードバランサー]
-    ↓
-[ファイアウォール]
-    ↓
-[L3スイッチ] ── [KidsPOS-Server×2（冗長化）]
-    ↓        ── [MongoDB Server]
-    ↓        ── [管理用PC]
+[メインスイッチ] ── [Raspberry Pi (KidsPOS-Server)]
+    ↓             ── [レシートプリンター × 複数]
+    ↓             ── [管理用PC]
+    ↓             ── [予備Raspberry Pi (冗長化)]
 [WiFiコントローラー]
     ↓
 [複数のアクセスポイント（エリア分割）]
     ↓
-[Android端末群]
+[Nexus 7 タブレット群]
 ```
 
 ## IPアドレス設計
@@ -72,26 +58,26 @@ KidsPOSシステムを安定して運用するためのネットワーク設定�
 ### サブネット設計例
 ```
 サーバーセグメント: 192.168.1.0/28
-- KidsPOS-Server: 192.168.1.10
-- MongoDB Server: 192.168.1.11
-- 管理用PC: 192.168.1.12
+- Raspberry Pi (KidsPOS-Server): 192.168.1.10
+- 管理用PC: 192.168.1.11
+- 予備Raspberry Pi: 192.168.1.12
 
-端末セグメント: 192.168.2.0/24
-- Android端末: 192.168.2.10-192.168.2.59
+デバイスセグメント: 192.168.2.0/24
+- Nexus 7 タブレット: 192.168.2.10-192.168.2.29
 - WiFiアクセスポイント: 192.168.2.1
 
-管理セグメント: 192.168.10.0/28
-- ネットワーク機器管理: 192.168.10.1-192.168.10.14
+プリンターセグメント: 192.168.3.0/28
+- レシートプリンター: 192.168.3.10-192.168.3.15
 ```
 
 ### DHCPスコープ設定
 ```
-スコープ名: KidsPOS-Devices
-範囲: 192.168.2.10 - 192.168.2.59
+スコープ名: KidsPOS-Tablets
+範囲: 192.168.2.10 - 192.168.2.29
 サブネットマスク: 255.255.255.0
 デフォルトゲートウェイ: 192.168.2.1
-DNSサーバー: 8.8.8.8, 8.8.4.4
-リース期間: 8時間
+DNSサーバー: 192.168.1.1 (ルーター)
+リース期間: 24時間（固定端末のため長期設定）
 ```
 
 ## WiFi設定
@@ -143,7 +129,7 @@ iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -p tcp --dport 22 -s 192.168.10.0/28 -j ACCEPT
 
 # KidsPOS-Server API
-iptables -A INPUT -p tcp --dport 3000 -s 192.168.2.0/24 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8080 -s 192.168.2.0/24 -j ACCEPT
 
 # MongoDB（ローカルのみ）
 iptables -A INPUT -p tcp --dport 27017 -s 127.0.0.1 -j ACCEPT
@@ -152,7 +138,7 @@ iptables -A INPUT -p tcp --dport 27017 -s 127.0.0.1 -j ACCEPT
 ### セキュリティ強化設定
 ```bash
 # DDoS対策
-iptables -A INPUT -p tcp --dport 3000 -m limit --limit 25/minute --limit-burst 100 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8080 -m limit --limit 25/minute --limit-burst 100 -j ACCEPT
 
 # ポートスキャン対策
 iptables -A INPUT -m recent --name portscan --rcheck --seconds 86400 -j DROP
@@ -166,7 +152,7 @@ iptables -A INPUT -m recent --name blacklist --rcheck --seconds 3600 -j DROP
 
 ### 帯域制御
 ```
-高優先度: KidsPOS API通信（ポート3000）
+高優先度: KidsPOS API通信（ポート8080）
 中優先度: 管理トラフィック（SSH、SNMP）
 低優先度: その他の通信
 ```
@@ -183,7 +169,7 @@ tc class add dev eth0 parent 1:1 classid 1:20 htb rate 10mbit ceil 20mbit # 管�
 tc class add dev eth0 parent 1:1 classid 1:30 htb rate 10mbit ceil 50mbit # その他
 
 # フィルター設定
-tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32 match ip dport 3000 0xffff flowid 1:10
+tc filter add dev eth0 protocol ip parent 1:0 prio 1 u32 match ip dport 8080 0xffff flowid 1:10
 ```
 
 ## 監視設定
@@ -217,7 +203,7 @@ TX_BYTES=$(cat /sys/class/net/eth0/statistics/tx_bytes)
 echo "Network usage: RX=${RX_BYTES}, TX=${TX_BYTES}"
 
 # 接続数確認
-CONNECTIONS=$(netstat -an | grep :3000 | grep ESTABLISHED | wc -l)
+CONNECTIONS=$(netstat -an | grep :8080 | grep ESTABLISHED | wc -l)
 echo "Active connections: $CONNECTIONS"
 ```
 
@@ -227,7 +213,7 @@ echo "Active connections: $CONNECTIONS"
 ```bash
 # 基本的な接続確認
 ping [サーバーIP]
-telnet [サーバーIP] 3000
+telnet [サーバーIP] 8080
 
 # ルーティング確認
 traceroute [サーバーIP]
@@ -255,7 +241,7 @@ journalctl -u wpa_supplicant
 iperf3 -c [サーバーIP] -t 30
 
 # パケットキャプチャ
-tcpdump -i eth0 -w capture.pcap port 3000
+tcpdump -i eth0 -w capture.pcap port 8080
 
 # ネットワーク統計
 ss -tuln
@@ -290,7 +276,7 @@ logpath = /var/log/auth.log
 
 [kidspos-api]
 enabled = true
-port = 3000
+port = 8080
 filter = kidspos-api
 logpath = /var/log/kidspos/access.log
 maxretry = 10

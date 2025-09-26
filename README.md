@@ -6,6 +6,20 @@ KidsPOSシステムの現場展開・運用のための包括的ドキュメン�
 
 このリポジトリは、[KidsPOS-Server](https://github.com/KidsPOSProject/KidsPOS-Server) と [KidsPOS-for-Android](https://github.com/KidsPOSProject/KidsPOS-for-Android) を実際の現場で運用する際に必要な全てのドキュメントを提供します。
 
+### 📱 システム構成概要
+
+![bg right:60% 90%](diagrams/system-architecture.svg)
+
+### 主要コンポーネント
+- **KidsPOS-Server**
+  - SpringBoot + H2/MySQL
+  - Raspberry Pi 4で動作
+  - ポート8080で稼働
+- **KidsPOS-for-Android**
+  - Nexus 7相当のタブレットで動作
+  - USBバーコードリーダー対応
+  - WiFi接続（イントラネット）
+
 ## 📁 ドキュメント構成
 
 ### 📖 [ドキュメント](docs/)
@@ -37,7 +51,7 @@ cd KidsPOS-Docs
 # SVGファイルはブラウザまたは対応エディタで開く
 ```
 
-### スライドの作成・閲覧
+### スライドの作成・閲覧  
 ```bash
 # 依存関係のインストール
 npm install
@@ -52,17 +66,17 @@ npm run serve
 npm run slides:watch
 ```
 
-## 📋 システム要件
+## 🔧 システム要件
 
 ### KidsPOS-Server
-- Node.js 14.x以上
-- MongoDB 4.4以上
-- ネットワーク要件: ポート3000番開放
+- Raspberry Pi 4 (4GB RAM推奨)
+- Java 11以上
+- イントラネット環境（インターネット接続不要）
 
 ### KidsPOS-for-Android
-- Android 7.0 (API level 24)以上
+- Nexus 7相当のタブレット (Android 7.0以上)
+- USBバーコードリーダー + OTGケーブル
 - WiFi接続必須
-- カメラ権限
 
 ## 🔧 現場展開チェックリスト
 
