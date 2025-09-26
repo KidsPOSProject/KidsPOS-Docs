@@ -231,11 +231,10 @@ adb shell nslookup [サーバードメイン]
    - サーバーURL設定の確認
    - HTTPSではなくHTTPで接続確認
 
-3. **ファイアウォール確認**
+3. **基本的な接続確認**
    ```bash
-   # サーバー側でファイアウォール確認
-   sudo ufw status
-   sudo iptables -L
+   # サーバー側で基本確認
+   sudo netstat -tlnp | grep :8080
    ```
 
 ## 🌐 ネットワーク関連の問題

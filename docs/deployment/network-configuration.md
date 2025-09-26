@@ -85,9 +85,9 @@ DNSサーバー: 192.168.1.1 (ルーター)
 ### アクセスポイント設定
 ```
 SSID: KidsPOS-Network
-セキュリティ: WPA2-PSK (AES)
-チャンネル: 自動（DFS対応）
-出力: 中程度（干渉を避けるため）
+セキュリティ: WPA2-PSK (基本設定)
+チャンネル: 自動
+出力: 中程度
 帯域: 2.4GHz + 5GHz デュアルバンド
 ```
 
@@ -96,7 +96,7 @@ SSID: KidsPOS-Network
 {
   "ssid": "KidsPOS-Network",
   "security": "WPA2-PSK",
-  "password": "strong_password_here",
+  "password": "simple_password",
   "channel_2.4ghz": "auto",
   "channel_5ghz": "auto",
   "max_clients": 30,
@@ -110,43 +110,18 @@ SSID: KidsPOS-Network
 - **電波強度調整**: 隣接APとの干渉を最小化
 - **ロードバランシング**: 端末数の均等分散
 
-## ファイアウォール設定
+## 基本ネットワーク設定
 
-### 基本ルール
+### 基本設定のみ
 ```bash
-# デフォルトポリシー
-iptables -P INPUT DROP
-iptables -P FORWARD DROP
-iptables -P OUTPUT ACCEPT
+# 基本的な接続確認
+ping [サーバーIP]
 
-# ローカルループバック許可
-iptables -A INPUT -i lo -j ACCEPT
-
-# 確立された接続の許可
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# SSH（管理用）
-iptables -A INPUT -p tcp --dport 22 -s 192.168.10.0/28 -j ACCEPT
-
-# KidsPOS-Server API
-iptables -A INPUT -p tcp --dport 8080 -s 192.168.2.0/24 -j ACCEPT
-
-# MongoDB（ローカルのみ）
-iptables -A INPUT -p tcp --dport 27017 -s 127.0.0.1 -j ACCEPT
+# ポート確認
+telnet [サーバーIP] 8080
 ```
 
-### セキュリティ強化設定
-```bash
-# DDoS対策
-iptables -A INPUT -p tcp --dport 8080 -m limit --limit 25/minute --limit-burst 100 -j ACCEPT
-
-# ポートスキャン対策
-iptables -A INPUT -m recent --name portscan --rcheck --seconds 86400 -j DROP
-iptables -A INPUT -m recent --name portscan --set -j LOG --log-prefix "Portscan:"
-
-# 不正アクセス監視
-iptables -A INPUT -m recent --name blacklist --rcheck --seconds 3600 -j DROP
-```
+イントラネット環境のため、複雑なファイアウォール設定は不要です。
 
 ## QoS設定
 
@@ -248,40 +223,17 @@ ss -tuln
 netstat -i
 ```
 
-## セキュリティ対策
+## セキュリティについて
 
-### 基本セキュリティ
-- **WPA2-PSK**: 強固なパスワード設定
-- **MAC認証**: 必要に応じて端末制限
-- **VLAN分離**: セグメント間の通信制御
-- **ファイアウォール**: 不要ポートの閉塞
+### イントラネット環境での簡素化
+このシステムは完全にイントラネット内で動作するため、以下のような複雑なセキュリティ設定は不要です：
 
-### 高度なセキュリティ
-```bash
-# 侵入検知システム（例：fail2ban）
-sudo apt install fail2ban
+- 複雑なファイアウォールルール
+- SSL/TLS証明書
+- 高度な認証システム
+- 侵入検知システム
 
-# 設定例
-cat > /etc/fail2ban/jail.local << 'EOF'
-[DEFAULT]
-bantime = 3600
-findtime = 600
-maxretry = 3
-
-[sshd]
-enabled = true
-port = ssh
-filter = sshd
-logpath = /var/log/auth.log
-
-[kidspos-api]
-enabled = true
-port = 8080
-filter = kidspos-api
-logpath = /var/log/kidspos/access.log
-maxretry = 10
-EOF
-```
+基本的なWiFiパスワード設定のみで十分です。
 
 ## 運用手順
 

@@ -114,12 +114,7 @@ sudo systemctl enable kidspos-server
 iwconfig wlan0
 ip addr show wlan0
 
-# ファイアウォール設定（UFWを使用）
-sudo ufw allow 8080/tcp
-sudo ufw allow ssh
-sudo ufw --force enable
-
-# ポート確認
+# ポート確認（必要に応じて）
 sudo netstat -tlnp | grep :8080
 ```
 
