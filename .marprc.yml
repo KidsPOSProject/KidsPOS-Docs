@@ -1,0 +1,15 @@
+# Marp configuration for KidsPOS documentation slides
+allowLocalFiles: true
+engine: "@marp-team/marp-core"
+html: true
+options:
+  looseYAML: false
+  markdown:
+    breaks: false
+preview: true
+server:
+  port: 8080
+theme: default
+themeSet:
+  - themes/
+watch: true
